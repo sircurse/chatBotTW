@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class Database:
 
     """
-    The database created is called `MarkovChain_{channel}.db`, 
+    The database created is called `chatbotWords.db`, 
     and populated with 27 + 27^2 = 756 tables. Firstly, 27 tables with the structure of
     "MarkovStart{char}", i.e. called:
     > MarkovStartA
@@ -155,9 +155,9 @@ class Database:
             def progress(status, remaining, total):
                 logging.debug(f'Copied {total-remaining} of {total} pages...')
             conn = sqlite3.connect(
-                f"MarkovChain_{channel.replace('#', '').lower()}.db")
+                f"chatbotWords.db")
             back_conn = sqlite3.connect(
-                f"MarkovChain_{channel.replace('#', '').lower()}_backup.db")
+                f"chatbotWords_backup.db")
             with back_conn:
                 conn.backup(back_conn, pages=1000, progress=progress)
             conn.close()
@@ -266,16 +266,16 @@ class Database:
         This allows people to generate "!g hello", and have the bot generate "hello, how are you?",
         or have "!g it" result in "it's a wonderful day".
 
-        This first copies `MarkovChain_{channel}.db` to `MarkovChain_{channel}_modified.db`.
+        This first copies `chatbotWords.db` to `chatbotWords_modified.db`.
         This new copy is then modified. The original is never changed, to avoid issues when the
         update is interrupted. As a result, running the program again will just re-attempt the
         update. 
 
         Upon completing the update, the original database is renamed to 
-        `MarkovChain_{channel}_backup.db`, while the newly modified `MarkovChain_{channel}_modified.db`
-        is renamed to `MarkovChain_{channel}.db`.
+        `chatbotWords_backup.db`, while the newly modified `chatbotWords_modified.db`
+        is renamed to `chatbotWords.db`.
 
-        *This `MarkovChain_{channel}_backup.db` file can safely be deleted, as it is NOT used*
+        *This `chatbotWords_backup.db` file can safely be deleted, as it is NOT used*
 
         This function also adds a `Version` table, and sets the version to 3.
 
@@ -301,13 +301,13 @@ class Database:
             from Tokenizer import tokenize
             from nltk import ngrams
             channel = channel.replace('#', '').lower()
-            copyfile(f"MarkovChain_{channel}.db",
-                     f"MarkovChain_{channel}_modified.db")
+            copyfile(f"chatbotWords.db",
+                     f"chatbotWords_modified.db")
             logger.info(
-                f"Created a copy of the database called \"MarkovChain_{channel}_modified.db\". The update will modify this file.")
+                f"Created a copy of the database called \"chatbotWords_modified.db\". The update will modify this file.")
 
             # Temporarily set self.db_name to the modified one
-            self.db_name = f"MarkovChain_{channel.replace('#', '').lower()}_modified.db"
+            self.db_name = f"chatbotWords_modified.db"
 
             # Create database tables.
             for first_char in list(string.ascii_uppercase) + ["_"]:
@@ -444,13 +444,13 @@ class Database:
 
             # Turn the non-modified, old version of the Database into a "_backup.db" file,
             # and turn the modified file into the new main file.
-            os.rename(f"MarkovChain_{channel}.db",
-                      f"MarkovChain_{channel}_backup.db")
-            os.rename(f"MarkovChain_{channel}_modified.db",
-                      f"MarkovChain_{channel}.db")
+            os.rename(f"chatbotWords.db",
+                      f"chatbotWords_backup.db")
+            os.rename(f"chatbotWords_modified.db",
+                      f"chatbotWords.db")
 
             # Revert to using .db instead of _modified.db
-            self.db_name = f"MarkovChain_{channel.replace('#', '').lower()}.db"
+            self.db_name = f"chatbotWords.db"
 
             # Add a version entry
             self.execute("""CREATE TABLE IF NOT EXISTS Version (
@@ -460,11 +460,11 @@ class Database:
             self.execute("INSERT INTO Version (version) VALUES (3);")
 
             logger.info(
-                f"Renamed original database file \"MarkovChain_{channel}.db\" to \"MarkovChain_{channel}_backup.db\". This file is *not* used, and can safely be deleted.")
+                f"Renamed original database file \"chatbotWords.db\" to \"chatbotWords_backup.db\". This file is *not* used, and can safely be deleted.")
             logger.info(
-                f"Renamed updated database file \"MarkovChain_{channel}_modified.db\" to \"MarkovChain_{channel}.db\".")
+                f"Renamed updated database file \"chatbotWords_modified.db\" to \"chatbotWords.db\".")
             logger.info(
-                f"This updated \"MarkovChain_{channel}.db\" will be used to drive the Twitch bot.")
+                f"This updated \"chatbotWords.db\" will be used to drive the Twitch bot.")
 
     def add_execute_queue(self, sql: str, values: Tuple[Any] = None, auto_commit: bool = True) -> None:
         """Add query and corresponding values to a queue, to be executed all at once.
