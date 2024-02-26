@@ -28,7 +28,7 @@ class SettingsData(TypedDict):
 class Settings:
     """ Loads data from settings.json into the bot """
     
-    PATH = os.path.join(os.getcwd(), "settings.json")
+    PATH = os.path.join(os.getcwd(), "/chatBotTW/settings.json")
     
     DEFAULTS: SettingsData = {
         "Host": "irc.chat.twitch.tv",
