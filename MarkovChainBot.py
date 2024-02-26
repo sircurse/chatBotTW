@@ -1,4 +1,4 @@
-
+import os
 from typing import List, Tuple
 
 from TwitchWebsocket import Message, TwitchWebsocket
@@ -61,17 +61,17 @@ class MarkovChain:
         """
         self.host = settings["Host"]
         self.port = settings["Port"]
-        self.chan = settings["Channel"]
-        self.nick = settings["Nickname"]
-        self.auth = settings["Authentication"]
-        self.denied_users = [user.lower() for user in settings["DeniedUsers"]] + [self.nick.lower()]
-        self.allowed_users = [user.lower() for user in settings["AllowedUsers"]]
+        self.chan = os.environ['CHANNEL']
+        self.nick = os.environ['NICKNAME']
+        self.auth = os.environ['AUTH']
+        self.denied_users = [user.lower() for user in [os.environ['DENIEDUSERS']]] + [self.nick.lower()]
+        self.allowed_users = [user.lower() for user in [os.environ['MODERATORS']]]
         self.cooldown = settings["Cooldown"]
         self.key_length = settings["KeyLength"]
         self.max_sentence_length = settings["MaxSentenceWordAmount"]
         self.min_sentence_length = settings["MinSentenceWordAmount"]
         self.help_message_timer = settings["HelpMessageTimer"]
-        self.automatic_generation_timer = settings["AutomaticGenerationTimer"]
+        self.automatic_generation_timer = int(os.environ['AUTOSENDMSGTIME'])
         self.whisper_cooldown = settings["WhisperCooldown"]
         self.enable_generate_command = settings["EnableGenerateCommand"]
         self.sent_separator = settings["SentenceSeparator"]
